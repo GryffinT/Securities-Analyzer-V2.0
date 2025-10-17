@@ -2,4 +2,4 @@ streamlit
 finnhub-python
 yfinance
 pandas
-sklearn
+scikit-learn
