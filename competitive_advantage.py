@@ -31,19 +31,21 @@ def calculate_competitive_advantage(ticker):
             "year": r.get("year"),
             "quarter": r.get("quarter")
         }
-        for r in ticker_financialsAsReported['data']
+        for r in ticker_financials.get('data', [])
     ])
 
     df['endDate'] = pd.to_datetime(df['endDate'])
     df = df.sort_values('endDate').set_index('endDate')
+
+    df = df.dropna(subset=['revenue', 'cogs', 'operatingIncome', 'netIncome'])
+    df = df[df['revenue'] != 0]
 
     df['grossMargin'] = (df['revenue'] - df['cogs']) / df['revenue']
     df['operatingMargin'] = df['operatingIncome'] / df['revenue']
     df['netMargin'] = df['netIncome'] / df['revenue']
 
     def forecast_margin(df, col='grossMargin', periods=1):
-        df = df.copy()
-        df = df.reset_index()
+        df = df.copy().reset_index()
         df['time_idx'] = np.arange(len(df))
         
         X = df[['time_idx']]
