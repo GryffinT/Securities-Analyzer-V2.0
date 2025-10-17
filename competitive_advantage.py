@@ -1,6 +1,7 @@
 import streamlit as st
 from finnhub import Client
 from datetime import datetime, timedelta
+import yfinance as yf
 
 api_key = st.secrets["FINNHUB_API_KEY"]
 
@@ -12,7 +13,7 @@ def calculate_competitive_advantage(ticker):
     from_date = (datetime.now() - timedelta(days=60)).strftime('%Y-%m-%d')
 
     # Ticker info
-    ticker_info = client.company_basic_financials(ticker, 'all')
+    ticker_info = client.company_basic_financials(ticker, 'beta')
     ticker_insider = client.stock_insider_sentiment(ticker, from_date, to_date)
 
 
