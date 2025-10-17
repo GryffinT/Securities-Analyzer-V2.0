@@ -3,6 +3,9 @@ from finnhub import Client
 from datetime import datetime, timedelta
 import yfinance as yf
 from yfinance import EquityQuery
+import pandas as pd
+import numpy as np
+from sklearn.linear_model import LinearRegression
 
 api_key = st.secrets["FINNHUB_API_KEY"]
 
@@ -17,8 +20,45 @@ def calculate_competitive_advantage(ticker):
     ticker_info = client.company_basic_financials(ticker, 'all')
     ticker_insider = client.stock_insider_sentiment(ticker, from_date, to_date)
     ticker_financialsAsReported = client.financials_reported(symbol=ticker, freq='quarterly')
-    st.write(ticker_financialsAsReported)
 
+    df = pd.DataFrame([
+        {
+            "date": r["report"]["fiscalDateEnding"],
+            "revenue": r["metrics"]["revenue"],
+            "cogs": r["metrics"]["costOfRevenue"],
+            "operatingIncome": r["metrics"]["operatingIncome"],
+            "netIncome": r["metrics"]["netIncome"]
+        }
+        for r in ticker_financialsAsReported['data']
+    ])
+
+    df['date'] = pd.to_datetime(df['date'])
+    df = df.sort_values('date')
+    df.set_index('date', inplace=True)
+
+    # Compute quarterly margins
+    df['grossMargin'] = (df['revenue'] - df['cogs']) / df['revenue']
+    df['operatingMargin'] = df['operatingIncome'] / df['revenue']
+    df['netMargin'] = df['netIncome'] / df['revenue']
+
+    def forecast_margin(df, col='grossMargin', periods=1):
+        df = df.copy()
+        df = df.reset_index()
+        df['time_idx'] = np.arange(len(df))
+        
+        X = df[['time_idx']]
+        y = df[col]
+        
+        model = LinearRegression()
+        model.fit(X, y)
+        
+        next_idx = np.array([[len(df)]])
+        pred = model.predict(next_idx)
+        return float(pred)
+
+    next_gross = forecast_margin(df, 'grossMargin')
+    next_operating = forecast_margin(df, 'operatingMargin')
+    next_net = forecast_margin(df, 'netMargin')
 
     try:
         try:
@@ -32,7 +72,6 @@ def calculate_competitive_advantage(ticker):
             peers = yf.screen[filter]
             st.error(f"Finhub peer data unavailable, using yfinance fallback: {e}")
         average_beta = 0
-        average_gross_profit_margin = 0
         for peer in peers:
             peer_info = client.company_basic_financials(peer, 'beta')
             average_beta += peer_info['metric']['beta']
@@ -60,4 +99,4 @@ def calculate_competitive_advantage(ticker):
 
     
 
-    return {"info": ticker_info, "insider_sentiment": ticker_insider, "peers": peers, "external_beta": beta_ratio}
+    return {"info": ticker_info, "insider_sentiment": ticker_insider, "peers": peers, "external_beta": beta_ratio, "next_gross_margin": next_gross, "next_operating_margin": next_operating, "next_net_margin": next_net}
