@@ -29,6 +29,7 @@ def calculate_competitive_advantage(ticker):
             ])
             peers = yf.screen[filter]
             st.error(f"Finhub peer data unavailable, using yfinance fallback: {e}")
+            return ""
         average_beta = 0
         for peer in peers:
             peer_info = client.company_basic_financials(peer, 'beta')
