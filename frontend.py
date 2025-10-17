@@ -7,7 +7,9 @@ import numpy as np
 
 st.title("Securities Analyzer")
 ticker = st.text_input("Enter a stock ticker symbol (e.g, AAPL, MSFT):")
+
 data = fetch_security_data(ticker) if ticker else None
+
 competitive_advantage = calculate_competitive_advantage(data['symbol']) if data else None
 
 def stream_data():
@@ -24,7 +26,8 @@ def stream_data():
         yield word + " "
         time.sleep(0.02)
 
-st.write
+if ticker:
+    st.write_stream(stream_data)
 with st.expander("Raw yFinance data."):
     st.write(data)
 with st.expander("Raw Finnhub data."):
