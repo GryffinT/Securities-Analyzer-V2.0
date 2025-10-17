@@ -12,7 +12,7 @@ def calculate_competitive_advantage(ticker):
     from_date = (datetime.now() - timedelta(days=60)).strftime('%Y-%m-%d')
 
     # Ticker info
-    ticker_info = client.basic_financials(ticker, 'all')
+    ticker_info = client.company_basic_financials(ticker, 'all')
     ticker_insider = client.insider_sentiment(ticker, from_date, to_date)
 
 
