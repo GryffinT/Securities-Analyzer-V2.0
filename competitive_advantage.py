@@ -21,47 +21,6 @@ def calculate_competitive_advantage(ticker):
     ticker_insider = client.stock_insider_sentiment(ticker, from_date, to_date)
     ticker_financials = client.financials_reported(symbol=ticker, freq='quarterly')
 
-    df = pd.DataFrame([
-        {
-            "endDate": r.get("endDate"),
-            "revenue": r.get("metrics", {}).get("revenue"),
-            "cogs": r.get("metrics", {}).get("costOfRevenue"),
-            "operatingIncome": r.get("metrics", {}).get("operatingIncome"),
-            "netIncome": r.get("metrics", {}).get("netIncome"),
-            "year": r.get("year"),
-            "quarter": r.get("quarter")
-        }
-        for r in ticker_financials.get('data', [])
-    ])
-
-    df['endDate'] = pd.to_datetime(df['endDate'])
-    df = df.sort_values('endDate').set_index('endDate')
-
-    df = df.dropna(subset=['revenue', 'cogs', 'operatingIncome', 'netIncome'])
-    df = df[df['revenue'] != 0]
-
-    df['grossMargin'] = (df['revenue'] - df['cogs']) / df['revenue']
-    df['operatingMargin'] = df['operatingIncome'] / df['revenue']
-    df['netMargin'] = df['netIncome'] / df['revenue']
-
-    def forecast_margin(df, col='grossMargin', periods=1):
-        df = df.copy().reset_index()
-        df['time_idx'] = np.arange(len(df))
-        
-        X = df[['time_idx']]
-        y = df[col]
-        
-        model = LinearRegression()
-        model.fit(X, y)
-        
-        next_idx = np.array([[len(df)]])
-        pred = model.predict(next_idx)
-        return float(pred)
-
-    next_gross = forecast_margin(df, 'grossMargin')
-    next_operating = forecast_margin(df, 'operatingMargin')
-    next_net = forecast_margin(df, 'netMargin')
-
     try:
         try:
             peers = client.company_peers(ticker)
@@ -101,4 +60,4 @@ def calculate_competitive_advantage(ticker):
 
     
 
-    return {"info": ticker_info, "insider_sentiment": ticker_insider, "peers": peers, "external_beta": beta_ratio, "next_gross_margin": next_gross, "next_operating_margin": next_operating, "next_net_margin": next_net}
+    return {"info": ticker_info, "insider_sentiment": ticker_insider, "peers": peers, "external_beta": beta_ratio}
