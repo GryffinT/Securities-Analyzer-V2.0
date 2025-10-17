@@ -13,7 +13,7 @@ def calculate_competitive_advantage(ticker):
     from_date = (datetime.now() - timedelta(days=60)).strftime('%Y-%m-%d')
 
     # Ticker info
-    ticker_info = client.company_basic_financials(ticker, 'beta')
+    ticker_info = client.company_basic_financials(ticker, 'all')
     ticker_insider = client.stock_insider_sentiment(ticker, from_date, to_date)
 
 
@@ -21,7 +21,7 @@ def calculate_competitive_advantage(ticker):
         peers = client.company_peers(ticker)
         average_beta = 0
         for peer in peers:
-            peer_info = client.company_basic_financials(peer, 'all')
+            peer_info = client.company_basic_financials(peer, 'beta')
             average_beta += peer_info['metric']['beta']
         average_beta /= len(peers) if peers else st.error("Insufficient peer data to calculate beta index.")
         try:
