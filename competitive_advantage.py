@@ -31,7 +31,7 @@ def calculate_competitive_advantage(ticker):
                 indication = "lower volatility than its peers."
             else:
                 indication = "a similar volatility to its peers."
-            st.info(f"{ticker} βeta index of {beta_index:.2f} indicates {indication}")
+            st.info(f"{ticker}'s external βeta ratio of {beta_index:.2f} indicates {indication}")
         except Exception as e:
             st.error(f"Beta index could not be calculated: {e}")
     except Exception as e:
