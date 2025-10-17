@@ -27,9 +27,15 @@ def calculate_competitive_advantage(ticker):
         try:
             beta_index = ticker_info['metric']['beta']/average_beta
             if beta_index > 1:
-                indication = "higher volatility than its peers."
+                if beta_index <= 1.5:
+                    indication = "moderately higher volatility than its peers."
+                else:
+                    indication = "higher volatility than its peers."
             elif beta_index < 1:
-                indication = "lower volatility than its peers."
+                if beta_index >= -0.5:
+                    indication = "moderately lower volatility than its peers."
+                else:
+                    indication = "lower volatility than its peers."
             else:
                 indication = "a similar volatility to its peers."
             st.info(f"{ticker}'s external βeta ratio of {beta_index:.2f} indicates {indication}")
