@@ -16,6 +16,8 @@ def calculate_competitive_advantage(ticker):
     # Ticker info
     ticker_info = client.company_basic_financials(ticker, 'all')
     ticker_insider = client.stock_insider_sentiment(ticker, from_date, to_date)
+    ticker_financialsAsReported = client.financials_reported(ticker, freq='quarterly') 
+    st.write(ticker_financialsAsReported)
 
 
     try:
@@ -30,6 +32,7 @@ def calculate_competitive_advantage(ticker):
             peers = yf.screen[filter]
             st.error(f"Finhub peer data unavailable, using yfinance fallback: {e}")
         average_beta = 0
+        average_gross_profit_margin = 0
         for peer in peers:
             peer_info = client.company_basic_financials(peer, 'beta')
             average_beta += peer_info['metric']['beta']
