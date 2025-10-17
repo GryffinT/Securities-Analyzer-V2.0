@@ -23,13 +23,14 @@ def calculate_competitive_advantage(ticker):
 
     df = pd.DataFrame([
         {
-            "date": r["report"]["endDate"],
-            "revenue": r["metrics"]["revenue"],
-            "cogs": r["metrics"]["costOfRevenue"],
-            "operatingIncome": r["metrics"]["operatingIncome"],
-            "netIncome": r["metrics"]["netIncome"]
+            "date": r.get("report", {}).get("fiscalDateEnding") 
+                    or r.get("report", {}).get("endDate"),
+            "revenue": r.get("metrics", {}).get("revenue"),
+            "cogs": r.get("metrics", {}).get("costOfRevenue"),
+            "operatingIncome": r.get("metrics", {}).get("operatingIncome"),
+            "netIncome": r.get("metrics", {}).get("netIncome")
         }
-        for r in ticker_financialsAsReported['data']
+        for r in ticker_financialsAsReported.get('data', [])
     ])
 
     df['date'] = pd.to_datetime(df['date'])
