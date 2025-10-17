@@ -19,7 +19,7 @@ def calculate_competitive_advantage(ticker):
     # Ticker info
     ticker_info = client.company_basic_financials(ticker, 'all')
     ticker_insider = client.stock_insider_sentiment(ticker, from_date, to_date)
-    ticker_financialsAsReported = client.financials_reported(symbol=ticker, freq='quarterly')
+    ticker_financials = client.financials_reported(symbol=ticker, freq='quarterly')
 
     df = pd.DataFrame([
         {
