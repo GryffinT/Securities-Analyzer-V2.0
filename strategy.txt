@@ -1,0 +1,114 @@
+===========================================
+Overall strategy
+-----------------
+Factors:
+    I. competitive advantage
+        a. ROI scales with Moat none >10y -> Narrow 10y -> Wide 20y
+            - 20 year benchmark (MorningStar)
+            - Ability to defend against rival companies over the course of the benchmark
+        b. Cost advantage
+            - Cost Of Goods Sold / Sales #Firm to peers
+            - Operating Costs / Sales #Internal efficiency
+            - Total Costs/Sales #Internal efficiency
+            - Normalized composite score > industry index using same calculations
+            - weight the score components based off of importance (Potential for ML)
+            - Total Product / Cost per unit
+            - CapEx as % of revenue (Weighted higher for tech)
+            - Revenue per employee (Higher = automation)
+            - Days sales of inventory (DSI)
+            - inventory turnover (Higher = leaner Supply chain)
+            - labor costs/units
+            - overall firm size
+            - macro factors (tariffs, interest rates, etc [can be largely ignored, since only US firms are considered, but its valuable for supply chains!])
+        c. Intangible Assets
+            - Brand equity (brand name/hype)
+            - patents
+            - proprietary tech
+            - related regulation
+            - ratings
+        d. Network effect
+            - integration into established groups/niches
+        e. Switching costs
+            - Cost for consumers to switch
+                - how integral is the service to their operations?
+    I. Technical
+        a. Internal (compared to history)
+            - P/E 
+            - price movements (vectors)
+            - prevailing trends/patterns
+            - 
+
+===========================================
+1. Qualitative
+    I. Style: Qualitative (!#s)
+    I. Factors
+        a. Business model
+        b. competitive advantage
+        c. management team
+        d. industry outlook
+        e. regulatory env
+    II. Sources
+        a. company reports
+        b. industry publications
+        c. analyst ratings
+        d. customer reviews
+2. Quantitative
+    I. Style: Quantitative (#s)
+    I. Factors
+        a. financial performance
+        b. valuation
+        c. growth rate
+        d. profitability
+        e. liquidity
+        e. leverage
+    II. Sources
+        a. financial statements
+        b. ratios
+        c. models
+        d. formulae
+3. Fundamental
+    I. Style: Quantitative (#s)
+    II. Factors
+        a. Future cash flows
+        b. earnings
+        c. Overvalued/Undervalued
+        d. Current market price
+    III.
+        a. Discounted cash flow (DCF)
+        b. dividend discount model (DDM)
+        c. residual income model (RIM)
+        d. earnings multiples
+4. Technical
+    I. Style: Quantitative
+    II. Factors
+        a. Price movements -- as vectors
+        b. trends
+        c. ^^ Derived from historical data
+    III. Sources
+        a. Charts
+        b. Indicators
+        c. Oscillators
+        d. Trading systems
+5. Risk
+    I. Style: Overall
+    II. Factors
+        a. volatility
+        b. sensitivity
+        c. exposure
+    III. Sources
+        a. ST Dev
+        b. beta
+        c. Value at risk (VaR)
+        d. Scenario Analysis
+        e. Stress testing
+6. Sensitivity
+    I. Style: Supplemental
+    II. Factors
+        a. ROI under different simulations
+    III. Sources
+        a. Break-even Analysis
+        b. What-if Analysis
+        c. Monte Carlo simulations
+
+
+https://www.linkedin.com/advice/3/what-most-effective-ways-conduct-security-analysis-gpjpf
