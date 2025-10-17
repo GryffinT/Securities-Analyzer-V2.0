@@ -23,21 +23,20 @@ def calculate_competitive_advantage(ticker):
 
     df = pd.DataFrame([
         {
-            "date": r.get("report", {}).get("fiscalDateEnding") 
-                    or r.get("report", {}).get("endDate"),
+            "endDate": r.get("endDate"),
             "revenue": r.get("metrics", {}).get("revenue"),
             "cogs": r.get("metrics", {}).get("costOfRevenue"),
             "operatingIncome": r.get("metrics", {}).get("operatingIncome"),
-            "netIncome": r.get("metrics", {}).get("netIncome")
+            "netIncome": r.get("metrics", {}).get("netIncome"),
+            "year": r.get("year"),
+            "quarter": r.get("quarter")
         }
-        for r in ticker_financialsAsReported.get('data', [])
+        for r in ticker_financialsAsReported['data']
     ])
 
-    df['date'] = pd.to_datetime(df['date'])
-    df = df.sort_values('date')
-    df.set_index('date', inplace=True)
+    df['endDate'] = pd.to_datetime(df['endDate'])
+    df = df.sort_values('endDate').set_index('endDate')
 
-    # Compute quarterly margins
     df['grossMargin'] = (df['revenue'] - df['cogs']) / df['revenue']
     df['operatingMargin'] = df['operatingIncome'] / df['revenue']
     df['netMargin'] = df['netIncome'] / df['revenue']
