@@ -14,8 +14,9 @@ competitive_advantage = calculate_competitive_advantage(data['symbol']) if data 
 if ticker:
     st.html(
         f"""
-        <div>
+        <div style="background-color: #202231; padding: 5%; border-radius: 10px;">
             <h1>{ticker.upper()}</h1>
+            <p><span style="background-color: #263ADC; padding: 2px; border-radius: 5px;">{competitive_advantage['external_beta']}</span></p>
         </div>
         """
     )
