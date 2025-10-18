@@ -22,7 +22,7 @@ if data:
         st.error(f"Error calculating competitive advantage for {ticker}: {e}")
     try:
         if email:
-            supply_chain_countries = fetch_supply_chain(ticker, data['longName'], email)
+            supply_chain_countries = fetch_supply_chain(ticker, data['displayName'], email, data['longName'])
     except Exception as e:
         supply_chain_countries = None
         st.error(f"Error fetching supply chain for {ticker}: {e}")

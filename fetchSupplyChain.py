@@ -5,7 +5,7 @@ import pycountry
 import requests, re, yfinance as yf
 import os
 
-def fetch_supply_chain(ticker, firm, email):
+def fetch_supply_chain(ticker, firm, email, longName):
     countries = {c.name for c in pycountry.countries}
 
     def extract_countries(text):
@@ -147,8 +147,10 @@ def fetch_supply_chain(ticker, firm, email):
     def define_supply_chain(firm, ticker):
         countries_list = set()
         countries_list |= fetch_sec_countries(ticker or firm, firm, email)
+        countries_list |= fetch_sec_countries(longName, firm, email)
         # countries_list |= fetch_importyeti_countries(firm)
         countries_list |= fetch_wikidata_countries(firm)
+        countries_list |= fetch_wikidata_countries(longName)
         return sorted(countries_list)
 
     return (define_supply_chain(firm, ticker))
