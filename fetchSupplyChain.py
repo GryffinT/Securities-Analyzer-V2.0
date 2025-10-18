@@ -40,7 +40,9 @@ def fetch_supply_chain(ticker, firm, email):
 
         # Define the filing folder path
         filing_folder = os.path.join("sec_edgar_filings", ticker, "10-K")
+        st.info(f"Current working directory: {os.getcwd()}")
         if not os.path.exists(filing_folder):
+            st.error(f"Current working directory: {os.getcwd()}")
             st.warning(f"No filings found for {ticker} at {filing_folder}.")
             return set()
 
