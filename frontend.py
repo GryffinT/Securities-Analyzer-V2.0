@@ -10,9 +10,17 @@ st.title("Securities Analyzer")
 ticker = st.text_input("Enter a stock ticker symbol (e.g, AAPL, MSFT):")
 
 data = fetch_security_data(ticker) if ticker else None
-supply_chain_countries = fetch_supply_chain(ticker, data['displayName'])
 
-competitive_advantage = calculate_competitive_advantage(data['symbol']) if data else None
+if data:
+    try:
+        supply_chain_countries = fetch_supply_chain(ticker, data['displayName'])
+    except Exception as e:
+        st.error(f"Error fetching supply chain for {ticker}: {e}")
+    try:
+        competitive_advantage = calculate_competitive_advantage(data['symbol']) if data else None
+    except Exception as e:
+        st.error(f"Error calculating competitive advantage for {ticker}: {e}")
+
 if ticker:
     st.html(
         f"""
