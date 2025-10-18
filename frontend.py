@@ -22,7 +22,7 @@ if data and email:
     except Exception as e:
         st.error(f"Error calculating competitive advantage for {ticker}: {e}")
 
-if ticker:
+if ticker and competitive_advantage and supply_chain_countries:
     st.html(
         f"""
         <div style="background-color: #202231; padding: 5%; border-radius: 10px;">
