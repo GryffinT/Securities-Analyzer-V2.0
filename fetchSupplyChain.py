@@ -14,73 +14,59 @@ def fetch_supply_chain(ticker, firm, email):
             return {word for word in words if word in countries}
         except Exception as e:
             st.error(f"Error extracting countries for {ticker}: {e}")
-    
 
     def fetch_sec_countries(ticker, company_name=None, email=None):
-        """
-        Downloads the latest 10-K filing for a given ticker and extracts countries mentioned in the filing.
-        Returns a set of countries, or an empty set if errors occur.
-        """
+        # Validate parameters
         if company_name is None:
             company_name = ticker
         if email is None:
-            st.error("Email must be provided for SEC filings download.")
+            st.error("Email must be provided to comply with SEC's programmatic downloading policy.")
             return set()
 
         # Initialize Downloader
         try:
-            dl = Downloader()  # You can pass a folder here, e.g., Downloader("downloads")
+            dl = Downloader(company_name=company_name, email_address=email)
         except Exception as e:
             st.error(f"Failed to initialize Downloader: {e}")
             return set()
 
         # Attempt to download the 10-K filing
         try:
-            st.info(f"Downloading 10-K filing for {ticker}...")
             dl.get("10-K", ticker)
         except Exception as e:
             st.error(f"Error downloading 10-K for {ticker}: {e}")
             return set()
 
-        # Build the expected folder path
+        # Define the filing folder path
         filing_folder = os.path.join("sec_edgar_filings", ticker, "10-K")
-        st.write(f"Looking for filings in folder: {filing_folder}")
-
-        # Check if the folder exists
         if not os.path.exists(filing_folder):
-            st.warning(f"No filings folder found for {ticker}. Check if the download succeeded.")
-            st.warning(f"Current working directory: {os.getcwd()}")
+            st.warning(f"No filings found for {ticker} at {filing_folder}.")
             return set()
 
-        # List downloaded files
-        downloaded_files = [
-            os.path.join(filing_folder, f)
-            for f in os.listdir(filing_folder)
-            if f.endswith(".txt") or f.endswith(".html")
-        ]
+        # List all files in the folder
+        downloaded_files = [os.path.join(filing_folder, f) for f in os.listdir(filing_folder)
+                            if f.endswith(".txt") or f.endswith(".html")]
         if not downloaded_files:
-            st.warning(f"No valid .txt or .html filing files found in {filing_folder}.")
-            st.write(f"Files present: {os.listdir(filing_folder)}")
+            st.warning(f"No valid filing files found for {ticker} in {filing_folder}.")
             return set()
 
-        # Read the first filing
+        # Read the first downloaded file
         filepath = downloaded_files[0]
         try:
             with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
                 text = f.read()
         except Exception as e:
-            st.error(f"Error reading filing file {filepath}: {e}")
+            st.error(f"Error reading file {filepath}: {e}")
             return set()
 
-        # Extract countries (assuming extract_countries function exists)
+        # Extract countries from the text (ensure extract_countries is defined)
         try:
             countries = extract_countries(text)
-            if not countries:
-                st.warning(f"No countries found in the 10-K filing for {ticker}.")
             return countries
         except Exception as e:
-            st.error(f"Error extracting countries from filing: {e}")
+            st.error(f"Error extracting countries from the filing: {e}")
             return set()
+
     # Defunct, Import Yeti's API endpoint isn't useful yet...
     #def fetch_importyeti_countries(firm):
     #    url = f"https://www.importyeti.com/api/search?q={firm}"
