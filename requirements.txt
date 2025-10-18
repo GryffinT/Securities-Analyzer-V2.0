@@ -6,4 +6,4 @@ scikit-learn
 world_bank_data
 sec_edgar_downloader
 pycountry
-worldnewsapi-python
+worldnewsapi
