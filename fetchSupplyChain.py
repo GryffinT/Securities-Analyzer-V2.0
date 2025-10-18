@@ -3,6 +3,7 @@ import world_bank_data as wb
 from sec_edgar_downloader import Downloader
 import pycountry
 import requests, re, yfinance as yf
+import os
 
 def fetch_supply_chain(ticker, firm, email):
     countries = {c.name for c in pycountry.countries}
