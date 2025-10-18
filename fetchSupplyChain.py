@@ -41,29 +41,38 @@ def fetch_supply_chain(ticker, firm, email):
         return extract_countries(text)
 
     def fetch_importyeti_countries(firm):
+        url = f"https://www.importyeti.com/api/search?q={firm}"
         try:
-            data = requests.get(f"https://www.importyeti.com/api/search?q={firm}").json()
-        except Exception as e:
+            r = requests.get(url, timeout=10)
+            r.raise_for_status()
+            try:
+                data = r.json()
+            except ValueError:
+                st.error(f"ImportYeti returned invalid JSON for {firm}")
+                return set()
+        except requests.exceptions.RequestException as e:
             st.error(f"Error fetching ImportYeti for {firm}: {e}")
             return set()
+
         supplier_countries = set()
-        if "results" in data:
-            for result in data["results"]:
-                if "shipments" in result:
-                    for shipment in result["shipments"]:
-                        if "supplier_country" in shipment:
-                            supplier_countries.add(shipment["supplier_country"])
-                        else:
-                            st.error(f"{firm} has no supplier countries.")
-                    else:
-                        st.error(f"{firm}'s shipments entry is empty.")
+
+        if "results" not in data or not data["results"]:
+            st.warning(f"No results entry in {firm}'s data.")
+            return supplier_countries
+
+        for result in data["results"]:
+            shipments = result.get("shipments")
+            if not shipments:
+                st.warning(f"{firm}'s shipments entry is empty or missing.")
+                continue
+            for shipment in shipments:
+                country = shipment.get("supplier_country")
+                if country:
+                    supplier_countries.add(country)
                 else:
-                    st.error(f"No shipments entry in {firm}'s data.")
-            else:
-                st.error(f"{firm}'s results entry is empty.")
-        else:
-            st.error(f"No results entry in {firm}'s data.")
-        return (supplier_countries)
+                    st.warning(f"A shipment for {firm} has no supplier_country entry.")
+
+        return supplier_countries
 
     def fetch_wikidata_countries(firm): # Not mine, thanks google!
         query = f"""
