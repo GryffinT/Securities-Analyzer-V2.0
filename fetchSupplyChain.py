@@ -68,7 +68,7 @@ def fetch_supply_chain(ticker, firm, email):
     def fetch_wikidata_countries(firm): # Not mine, thanks google!
         query = f"""
             SELECT ?countryLabel WHERE {{
-            ?company rdfs:label "{company}"@en.
+            ?company rdfs:label "{firm}"@en.
             ?company wdt:P17 ?country.
             SERVICE wikibase:label {{ bd:serviceParam wikibase:language "en". }}
             }}
