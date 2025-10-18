@@ -16,38 +16,47 @@ def fetch_supply_chain(ticker, firm, email):
             st.error(f"Error extracting countries for {ticker}: {e}")
 
     def fetch_sec_countries(ticker, company_name=None, email=None):
-        # Validate parameters
+        """
+        Fetch countries mentioned in the latest 10-K filing for a given ticker.
+        
+        Uses sec-edgar-downloader to download filings into a fixed folder.
+        Streamlit is used for displaying errors and warnings.
+        """
+        # Validate inputs
         if company_name is None:
             company_name = ticker
         if email is None:
-            st.error("Email must be provided to comply with SEC's programmatic downloading policy.")
+            st.error("Email must be provided for SEC downloads.")
             return set()
+
+        # Set a fixed download folder (absolute path recommended for Streamlit apps)
+        download_root = os.path.join(os.getcwd(), "downloads")
 
         # Initialize Downloader
         try:
-            dl = Downloader(company_name=company_name, email_address=email)
+            dl = Downloader(download_folder=download_root,
+                            company_name=company_name,
+                            email_address=email)
         except Exception as e:
-            st.error(f"Current working directory: {os.getcwd()}")
             st.error(f"Failed to initialize Downloader: {e}")
             return set()
 
-        # Attempt to download the 10-K filing
+        # Attempt to download the latest 10-K
         try:
             dl.get("10-K", ticker)
         except Exception as e:
             st.error(f"Error downloading 10-K for {ticker}: {e}")
             return set()
 
-        # Define the filing folder path
-        filing_folder = os.path.join("sec_edgar_filings", ticker, "10-K")
-        st.info(f"Current working directory: {os.getcwd()}")
+        # Define the folder where filings are saved
+        filing_folder = os.path.join(download_root, ticker, "10-K")
         if not os.path.exists(filing_folder):
-            st.error(f"Current working directory: {os.getcwd()}")
             st.warning(f"No filings found for {ticker} at {filing_folder}.")
             return set()
 
-        # List all files in the folder
-        downloaded_files = [os.path.join(filing_folder, f) for f in os.listdir(filing_folder)
+        # List all .txt or .html files
+        downloaded_files = [os.path.join(filing_folder, f) 
+                            for f in os.listdir(filing_folder)
                             if f.endswith(".txt") or f.endswith(".html")]
         if not downloaded_files:
             st.warning(f"No valid filing files found for {ticker} in {filing_folder}.")
@@ -62,9 +71,11 @@ def fetch_supply_chain(ticker, firm, email):
             st.error(f"Error reading file {filepath}: {e}")
             return set()
 
-        # Extract countries from the text (ensure extract_countries is defined)
+        # Extract countries (ensure extract_countries is implemented)
         try:
             countries = extract_countries(text)
+            if not countries:
+                st.warning(f"No countries found in the filing for {ticker}.")
             return countries
         except Exception as e:
             st.error(f"Error extracting countries from the filing: {e}")
