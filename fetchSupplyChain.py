@@ -27,6 +27,7 @@ def fetch_supply_chain(ticker, firm, email):
         try:
             dl = Downloader(company_name=company_name, email_address=email)
         except Exception as e:
+            st.error(f"Current working directory: {os.getcwd()}")
             st.error(f"Failed to initialize Downloader: {e}")
             return set()
 
