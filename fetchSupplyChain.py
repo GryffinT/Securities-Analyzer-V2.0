@@ -14,24 +14,30 @@ def fetch_supply_chain(ticker, firm, email):
         except Exception as e:
             st.error(f"Error extracting countries for {ticker}: {e}")
     
-    def fetch_sec_countries(ticker):
-        dl = Downloader(firm, email)
+    def fetch_sec_countries(ticker, company_name=ticker, email=email):
+        dl = Downloader(company_name=company_name, email_address=email)
         try:
             dl.get("10-K", ticker)
         except Exception as e:
             st.error(f"Error downloading 10-K for {ticker}: {e}")
             return set()
-    
-        try:
-            files = dl.get_downloaded_filings(ticker, "10-K")
-        except Exception as e:
-            st.error(f"Error fetching downloaded filings for {ticker}: {e}")
+
+        filing_folder = os.path.join("sec_edgar_filings", ticker, "10-K")
+        if not os.path.exists(filing_folder):
+            st.warning(f"No filings found for {ticker}.")
             return set()
 
-        filepath = list(files.values())[0][0]
+        downloaded_files = [os.path.join(filing_folder, f) for f in os.listdir(filing_folder)
+                            if f.endswith(".txt") or f.endswith(".html")]
+        if not downloaded_files:
+            st.warning(f"No valid filing files found for {ticker}.")
+            return set()
+
+        filepath = downloaded_files[0]
         with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
             text = f.read()
-        return (extract_countries(text))
+
+        return extract_countries(text)
 
     def fetch_importyeti_countries(firm):
         try:
