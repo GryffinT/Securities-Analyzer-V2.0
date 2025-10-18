@@ -50,7 +50,7 @@ def fetch_supply_chain(ticker, firm, email, longName):
             st.error(f"Download failed for {ticker}: {e}")
             return set()
 
-        ticker_folder = os.path.join(download_root, ticker)
+        ticker_folder = download_root
         if not os.path.exists(ticker_folder):
             st.warning(f"Ticker folder not found: {ticker_folder}")
             return set()
