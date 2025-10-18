@@ -1,28 +1,28 @@
 import streamlit as st
-from newsapi import NewsApiClient
+from worldnewsapi import WorldNewsAPI
 from fetchSupplyChain import fetch_supply_chain
 import yfinance as yf
 import pycountry
 
-media_key = st.secrets["NEWS_API_KEY"]
+api_key = st.secrets["NEWS_API_KEY"]
 
-newsapi = NewsApiClient(media_key)
+world_news_api = WorldNewsAPI(api_key)
 
 def fetch_supply_chain_news(ticker, name, countries):
     all_articles = {}
 
-    for country_name in countries:
+    for country in countries:
         try:
-            country_code = pycountry.countries.lookup(country_name).alpha_2.lower()
-            
-            articles = newsapi.get_top_headlines(
-                q=name,
-                country=country_code,
-                language='en'
+            response = world_news_api.search(
+                text=name,
+                location=country,
+                language='en',
+                sort='published_desc',
+                page_size=10
             )
-            all_articles[country_name] = articles['articles']
-        except LookupError:
-            print(f"Country '{country_name}' not recognized.")
-            all_articles[country_name] = []
+            all_articles[country] = response['news']
+        except Exception as e:
+            print(f"Error fetching articles for {ticker} in {country}: {e}")
+            all_articles[country] = []
 
     return all_articles
