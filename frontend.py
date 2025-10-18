@@ -9,12 +9,15 @@ from fetchSupplyChain import fetch_supply_chain
 st.title("Securities Analyzer")
 email = st.text_input("Enter your email for supply chain logistics:")
 ticker = st.text_input("Enter a stock ticker symbol (e.g, AAPL, MSFT):")
+try:
+    data = fetch_security_data(ticker) if ticker else None
+except Exception as e:
+    st.error(f"Error fetching security data for {ticker}: {e}")
 
-data = fetch_security_data(ticker) if ticker else None
-
-if data and email:
+if data:
     try:
-        supply_chain_countries = fetch_supply_chain(ticker, data['displayName'], email)
+        if email:
+            supply_chain_countries = fetch_supply_chain(ticker, data['displayName'], email)
     except Exception as e:
         st.error(f"Error fetching supply chain for {ticker}: {e}")
     try:
