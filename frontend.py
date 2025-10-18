@@ -7,13 +7,14 @@ import numpy as np
 from fetchSupplyChain import fetch_supply_chain
 
 st.title("Securities Analyzer")
+email = st.text_input("Enter your email for supply chain logistics:")
 ticker = st.text_input("Enter a stock ticker symbol (e.g, AAPL, MSFT):")
 
 data = fetch_security_data(ticker) if ticker else None
 
-if data:
+if data and email:
     try:
-        supply_chain_countries = fetch_supply_chain(ticker, data['displayName'])
+        supply_chain_countries = fetch_supply_chain(ticker, data['displayName'], email)
     except Exception as e:
         st.error(f"Error fetching supply chain for {ticker}: {e}")
     try:

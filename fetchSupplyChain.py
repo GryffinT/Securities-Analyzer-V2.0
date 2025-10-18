@@ -4,7 +4,7 @@ from sec_edgar_downloader import Downloader
 import pycountry
 import requests, re, yfinance as yf
 
-def fetch_supply_chain(ticker, firm):
+def fetch_supply_chain(ticker, firm, email):
     countries = {c.name for c in pycountry.countries}
 
     def extract_countries(text):
@@ -15,7 +15,7 @@ def fetch_supply_chain(ticker, firm):
             st.error(f"Error extracting countries for {ticker}: {e}")
     
     def fetch_sec_countries(ticker):
-        dl = Downloader()
+        dl = Downloader(firm, email)
         try:
             dl.get("10-K", ticker)
         except Exception as e:
