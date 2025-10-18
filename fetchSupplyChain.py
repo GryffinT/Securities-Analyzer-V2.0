@@ -66,17 +66,24 @@ def fetch_supply_chain(ticker, firm, email, longName):
             st.info(f"10-K folder exists: {filing_folder}")
             st.write("Contents of 10-K folder:", os.listdir(filing_folder))
 
-        downloaded_files = [os.path.join(filing_folder, f)
-                            for f in os.listdir(filing_folder)
-                            if f.endswith(".txt") or f.endswith(".html")]
+        # 🔍 FIX: search recursively for all .txt and .html files
+        downloaded_files = []
+        for root, _, files in os.walk(filing_folder):
+            for f in files:
+                if f.endswith(".txt") or f.endswith(".html"):
+                    downloaded_files.append(os.path.join(root, f))
+
         if not downloaded_files:
-            st.warning(f"No .txt or .html files found in {filing_folder}")
+            st.warning(f"No .txt or .html files found under {filing_folder}")
             return set()
         else:
-            st.info(f"Found {len(downloaded_files)} filing files.")
-            st.write("Files:", downloaded_files)
+            st.info(f"Found {len(downloaded_files)} filing files (including subfolders).")
+            st.write("Files found:", downloaded_files)
 
-        filepath = downloaded_files[0]
+        # Prefer "filing-details.html" if available
+        preferred_files = [f for f in downloaded_files if "filing-details.html" in f]
+        filepath = preferred_files[0] if preferred_files else downloaded_files[0]
+
         try:
             with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
                 text = f.read()
@@ -95,7 +102,7 @@ def fetch_supply_chain(ticker, firm, email, longName):
         except Exception as e:
             st.error(f"Error extracting countries from {filepath}: {e}")
             return set()
-
+    
     # Defunct, Import Yeti's API endpoint isn't useful yet...
     #def fetch_importyeti_countries(firm):
     #    url = f"https://www.importyeti.com/api/search?q={firm}"
