@@ -1,4 +1,4 @@
-mport streamlit as st
+import streamlit as st
 import world_bank_data as wb
 from sec_edgar_downloader import Downloader
 import pycountry
