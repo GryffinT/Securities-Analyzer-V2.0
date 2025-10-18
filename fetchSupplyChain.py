@@ -35,7 +35,7 @@ def fetch_supply_chain(ticker, firm, email):
             return set()
 
         try:
-            dl.get("10-K", ticker, skip_existing=False)
+            dl.get("10-K", ticker, limit=1)
             st.success(f"Download attempted for {ticker}")
         except Exception as e:
             st.error(f"Download failed for {ticker}: {e}")
