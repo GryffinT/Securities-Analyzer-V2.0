@@ -18,6 +18,7 @@ if data:
     try:
         competitive_advantage = calculate_competitive_advantage(data['symbol'])
     except Exception as e:
+        competitive_advantage = None
         st.error(f"Error calculating competitive advantage for {ticker}: {e}")
     try:
         if email:
@@ -26,7 +27,7 @@ if data:
         supply_chain_countries = None
         st.error(f"Error fetching supply chain for {ticker}: {e}")
 
-if ticker and competitive_advantage and supply_chain_countries:
+if ticker:
     st.html(
         f"""
         <div style="background-color: #202231; padding: 5%; border-radius: 10px;">
