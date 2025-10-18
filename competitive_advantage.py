@@ -6,6 +6,7 @@ from yfinance import EquityQuery
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression
+import world_bank_data as wb
 
 api_key = st.secrets["FINNHUB_API_KEY"]
 
@@ -32,6 +33,10 @@ def calculate_competitive_advantage(ticker):
             ])
             peers = yf.screen[filter]
             st.error(f"Finhub peer data unavailable, using yfinance fallback: {e}")
+        try:
+            wb.get_indicators()
+        except Exception as e:
+            st.error(f"Word Bank API error fetching indicators: {e}")
         average_beta = 0
         for peer in peers:
             peer_info = client.company_basic_financials(peer, 'beta')
@@ -58,6 +63,12 @@ def calculate_competitive_advantage(ticker):
         st.error(f"Error fetching peers for {ticker}: {e}")
     
 
-    
+    output = {
 
-    return {"info": ticker_info, "insider_sentiment": ticker_insider, "peers": peers, "external_beta": beta_ratio}
+        "info": ticker_info, 
+        "insider_sentiment": ticker_insider,
+        "peers": peers, 
+        "external_beta": beta_ratio
+    }
+
+    return (output))
