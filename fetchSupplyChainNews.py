@@ -1,4 +1,4 @@
-from world_news_api import client
+from worldnewsapi import client
 import streamlit as st
 
 api_key = st.secrets['NEWS_API_KEY']
@@ -18,7 +18,7 @@ def fetch_news_by_org_and_country(org_name, countries):
             )
             all_articles[country] = response.get('news', [])
         except Exception as e:
-            print(f"Error fetching articles for {org_name} in {country}: {e}")
+            st.error(f"Error fetching articles for {org_name} in {country}: {e}")
             all_articles[country] = []
 
     return all_articles
