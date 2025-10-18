@@ -18,7 +18,7 @@ if data and email:
     except Exception as e:
         st.error(f"Error fetching supply chain for {ticker}: {e}")
     try:
-        competitive_advantage = calculate_competitive_advantage(data['symbol']) if data else None
+        competitive_advantage = calculate_competitive_advantage(data['symbol'])
     except Exception as e:
         st.error(f"Error calculating competitive advantage for {ticker}: {e}")
 
