@@ -4,11 +4,13 @@ from competitive_advantage import calculate_competitive_advantage
 import time
 import pandas as pd
 import numpy as np
+from fetchSupplyChain import fetch_supply_chain
 
 st.title("Securities Analyzer")
 ticker = st.text_input("Enter a stock ticker symbol (e.g, AAPL, MSFT):")
 
 data = fetch_security_data(ticker) if ticker else None
+supply_chain_countries = fetch_supply_chain(ticker, data['displayName'])
 
 competitive_advantage = calculate_competitive_advantage(data['symbol']) if data else None
 if ticker:
@@ -17,6 +19,7 @@ if ticker:
         <div style="background-color: #202231; padding: 5%; border-radius: 10px;">
             <h1>{ticker.upper()}</h1>
             <p><span style="background-color: #3779EC;color: #4EA9F3; padding: 5px; border-radius: 5px;">{competitive_advantage['external_beta']}</span></p>
+            <h1>{supply_chain_countries}</h1>
         </div>
         """
     )
