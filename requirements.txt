@@ -3,3 +3,4 @@ finnhub-python
 yfinance
 pandas
 scikit-learn
+world_bank_data
