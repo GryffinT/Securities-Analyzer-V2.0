@@ -39,6 +39,7 @@ if ticker:
             <h1>{ticker.upper()}</h1>
             <p><span style="background-color: #3779EC;color: #4EA9F3; padding: 5px; border-radius: 5px;">{competitive_advantage['external_beta']}</span></p>
             <h1>{supply_chain_countries}</h1>
+            <h1>{articles}</h1>
         </div>
         """
     )
