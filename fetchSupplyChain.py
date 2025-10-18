@@ -42,7 +42,7 @@ def fetch_supply_chain(ticker, firm, email):
 
     def fetch_importyeti_countries(firm):
         try:
-            data = requests.get(f"https://www.importyeti.com/api/search?q={company}").json()
+            data = requests.get(f"https://www.importyeti.com/api/search?q={firm}").json()
         except Exception as e:
             st.error(f"Error fetching ImportYeti for {firm}: {e}")
             return set()
