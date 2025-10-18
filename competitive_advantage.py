@@ -71,4 +71,4 @@ def calculate_competitive_advantage(ticker):
         "external_beta": beta_ratio
     }
 
-    return (output))
+    return (output)
