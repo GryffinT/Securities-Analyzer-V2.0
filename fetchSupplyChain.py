@@ -140,7 +140,9 @@ def fetch_supply_chain(ticker, firm, email, longName):
 
         try:
             # Initialize downloader with the download folder only
-            dl = Downloader(download_folder=download_root)
+            dl = Downloader(download_folder=download_root,
+                company_name=company_name,
+                email_address=email)
             st.info("Downloader initialized successfully.")
         except Exception as e:
             st.error(f"Failed to initialize Downloader: {e}")
