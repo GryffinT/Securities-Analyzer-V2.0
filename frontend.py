@@ -5,6 +5,7 @@ import time
 import pandas as pd
 import numpy as np
 from fetchSupplyChain import fetch_supply_chain
+from fetchSupplyChainNews import fetch_supply_chain_news
 
 st.title("Securities Analyzer")
 email = st.text_input("Enter your email for supply chain logistics:")
@@ -26,6 +27,10 @@ if data:
     except Exception as e:
         supply_chain_countries = None
         st.error(f"Error fetching supply chain for {ticker}: {e}")
+    try:
+        articles = fetch_supply_chain_news(data['symbol'], data['displayName'], supply_chain_countries)
+    except Exception as e:
+        st.error(f"Error fetching articles for {ticker}: {e}")
 
 if ticker:
     st.html(
