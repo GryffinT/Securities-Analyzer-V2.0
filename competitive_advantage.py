@@ -34,7 +34,9 @@ def calculate_competitive_advantage(ticker):
             peers = yf.screen[filter]
             st.error(f"Finhub peer data unavailable, using yfinance fallback: {e}")
         try:
-            wb.get_indicators()
+            indicators = wb.get_indicators()
+            with st.expander("indicators"):
+                st.write(indicators)
         except Exception as e:
             st.error(f"Word Bank API error fetching indicators: {e}")
         average_beta = 0
