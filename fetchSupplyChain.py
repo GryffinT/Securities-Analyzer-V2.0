@@ -15,8 +15,15 @@ def fetch_supply_chain(ticker, firm, email):
         except Exception as e:
             st.error(f"Error extracting countries for {ticker}: {e}")
     
-    def fetch_sec_countries(ticker, company_name=ticker, email=email):
+
+    def fetch_sec_countries(ticker, company_name=None, email=None):
+        if company_name is None:
+            company_name = ticker
+        if email is None:
+            raise ValueError("Email must be provided")
+
         dl = Downloader(company_name=company_name, email_address=email)
+
         try:
             dl.get("10-K", ticker)
         except Exception as e:
@@ -28,7 +35,8 @@ def fetch_supply_chain(ticker, firm, email):
             st.warning(f"No filings found for {ticker}.")
             return set()
 
-        downloaded_files = [os.path.join(filing_folder, f) for f in os.listdir(filing_folder)
+        downloaded_files = [os.path.join(filing_folder, f) 
+                            for f in os.listdir(filing_folder)
                             if f.endswith(".txt") or f.endswith(".html")]
         if not downloaded_files:
             st.warning(f"No valid filing files found for {ticker}.")
