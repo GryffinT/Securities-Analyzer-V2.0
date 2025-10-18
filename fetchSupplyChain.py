@@ -98,7 +98,7 @@ def fetch_supply_chain(ticker, firm, email):
 
     def define_supply_chain(firm, ticker):
         countries_list = set()
-        countries_list |= fetch_sec_countries(ticker or firm)
+        countries_list |= fetch_sec_countries(ticker or firm, firm, email)
         # countries_list |= fetch_importyeti_countries(firm)
         countries_list |= fetch_wikidata_countries(firm)
         return sorted(countries_list)
