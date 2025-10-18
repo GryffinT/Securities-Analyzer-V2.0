@@ -1,26 +1,125 @@
-import streamlit as st
-import world_bank_data as wb
-from sec_edgar_downloader import Downloader
-import pycountry
-import requests, re, yfinance as yf
+import re
 import os
 
+# Optional imports: don't fail the whole module if they're missing; warn at runtime instead
+try:
+    import streamlit as st
+except Exception:
+    # minimal shim so code can run outside Streamlit during tests
+    class _STShim:
+        def info(self, *a, **k):
+            print("INFO:", *a)
+        def warning(self, *a, **k):
+            print("WARN:", *a)
+        def error(self, *a, **k):
+            print("ERROR:", *a)
+        def success(self, *a, **k):
+            print("SUCCESS:", *a)
+        def write(self, *a, **k):
+            print(*a)
+    st = _STShim()
+
+try:
+    import world_bank_data as wb
+except Exception:
+    wb = None
+
+try:
+    from sec_edgar_downloader import Downloader
+except Exception:
+    Downloader = None
+
+try:
+    import pycountry
+except Exception:
+    pycountry = None
+
+try:
+    import requests
+except Exception:
+    requests = None
+
+try:
+    import yfinance as yf
+except Exception:
+    yf = None
+
 def fetch_supply_chain(ticker, firm, email, longName):
-    countries = {c.name for c in pycountry.countries}
+    # Build a mapping of possible country name variants to a canonical country name
+    country_map = {}
+    if pycountry is not None:
+        for c in pycountry.countries:
+            # primary name
+            country_map[c.name.lower()] = c.name
+            # official_name if available
+            if hasattr(c, "official_name"):
+                country_map[c.official_name.lower()] = c.name
+            # add alpha_2/alpha_3 codes
+            country_map[getattr(c, "alpha_2", "").lower()] = c.name
+            country_map[getattr(c, "alpha_3", "").lower()] = c.name
+    else:
+        # Fallback list when pycountry isn't installed: common country names and codes
+        fallback_countries = [
+            ("United States", ["us", "usa", "u.s.", "u.s.a."]),
+            ("United Kingdom", ["uk", "u.k.", "britain", "great britain"]),
+            ("China", ["cn", "prc", "peoples republic of china"]),
+            ("Japan", ["jp"]),
+            ("Germany", ["de", "germany"]),
+            ("Korea, Republic of", ["south korea", "kr"]),
+            ("Russian Federation", ["russia", "ru"]),
+            ("India", ["in"]),
+            ("Canada", ["ca"]),
+        ]
+        for name, aliases in fallback_countries:
+            country_map[name.lower()] = name
+            for a in aliases:
+                country_map[a.lower()] = name
+
+    # Common abbreviations and alternatives that pycountry may not match as plain words
+    extras = {
+        "u.s.": "United States",
+        "us": "United States",
+        "usa": "United States",
+        "u.s.a.": "United States",
+        "uk": "United Kingdom",
+        "u.k.": "United Kingdom",
+        "south korea": "Korea, Republic of",
+        "north korea": "Korea, Democratic People's Republic of",
+        "russia": "Russian Federation",
+        "venezuela": "Venezuela, Bolivarian Republic of",
+    }
+    for k, v in extras.items():
+        country_map[k.lower()] = v
+
+    # prepare a regex that matches any of the known country names/variants, longest-first
+    variants = sorted(set(country_map.keys()), key=lambda s: -len(s))
+    # require word boundaries so we don't match inside other words
+    pattern = re.compile(r"\b(?:" + "|".join(re.escape(v) for v in variants) + r")\b", flags=re.IGNORECASE)
 
     def extract_countries(text):
         try:
-            words = re.findall(r'\b[A-Z][a-z]+\b', text)
-            return {word for word in words if word in countries}
+            if not text:
+                return set()
+            # strip HTML tags if present
+            text_clean = re.sub(r"<[^>]+>", " ", text)
+            matches = pattern.findall(text_clean)
+            found = set()
+            for m in matches:
+                key = m.lower()
+                canonical = country_map.get(key)
+                if canonical:
+                    found.add(canonical)
+            return found
         except Exception as e:
             st.error(f"Error extracting countries for {ticker}: {e}")
+            return set()
 
     def fetch_sec_countries(ticker, company_name=None, email=None):
         if company_name is None:
             company_name = ticker
             st.info(f"Company name not provided, using ticker as company_name: {company_name}")
 
-        if email is None:
+        if not email:
             st.error("Email must be provided for SEC downloads.")
             return set()
         else:
@@ -34,47 +133,60 @@ def fetch_supply_chain(ticker, firm, email, longName):
             st.error(f"Could not create download root folder: {e}")
             return set()
 
+        if Downloader is None:
+            st.warning("sec_edgar_downloader not installed; skipping SEC filings download step.")
+            # return empty set so other sources (Wikidata) can still contribute
+            return set()
+
         try:
-            dl = Downloader(download_folder=download_root,
-                            company_name=company_name,
-                            email_address=email)
+            # Initialize downloader with the download folder only
+            dl = Downloader(download_folder=download_root)
             st.info("Downloader initialized successfully.")
         except Exception as e:
             st.error(f"Failed to initialize Downloader: {e}")
             return set()
 
         try:
-            dl.get("10-K", ticker, limit=1)
+            # attempt to download the most recent 10-K for the ticker
+            # sec_edgar_downloader uses 'amount' (not 'limit') for the number of filings
+            dl.get("10-K", ticker, amount=1)
             st.success(f"Download attempted for {ticker}")
         except Exception as e:
             st.error(f"Download failed for {ticker}: {e}")
-            return set()
+            # continue to try to discover any existing files
+            # return set()
 
-        ticker_folder = os.path.join(download_root, ticker)
-        if not os.path.exists(ticker_folder):
-            st.warning(f"Ticker folder not found: {ticker_folder}")
-            return set()
-        else:
-            st.info(f"Ticker folder exists: {ticker_folder}")
-            st.write("Contents of ticker folder:", os.listdir(ticker_folder))
+        # Search the download root for 10-K files under any folder
+        downloaded_files = []
+        for root, dirs, files in os.walk(download_root):
+            # match 10-K folders (case-insensitive)
+            if os.path.basename(root).lower() == "10-k":
+                for f in files:
+                    if f.lower().endswith((".txt", ".html", ".htm")):
+                        downloaded_files.append(os.path.join(root, f))
 
-        filing_folder = os.path.join(ticker_folder, "10-K")
-        if not os.path.exists(filing_folder):
-            st.warning(f"No 10-K folder found for {ticker}: {filing_folder}")
-            return set()
-        else:
-            st.info(f"10-K folder exists: {filing_folder}")
-            st.write("Contents of 10-K folder:", os.listdir(filing_folder))
-
-        downloaded_files = [os.path.join(filing_folder, f)
-                            for f in os.listdir(filing_folder)
-                            if f.endswith(".txt") or f.endswith(".html")]
+        # fallback: any file that looks like a filing
         if not downloaded_files:
-            st.warning(f"No .txt or .html files found in {filing_folder}")
+            for root, dirs, files in os.walk(download_root):
+                for f in files:
+                    if f.lower().endswith((".txt", ".html", ".htm")):
+                        path = os.path.join(root, f)
+                        # prefer files that mention the ticker in the path
+                        if ticker.lower() in path.lower():
+                            downloaded_files.append(path)
+            # as last resort, take any filing-like file
+            if not downloaded_files:
+                for root, dirs, files in os.walk(download_root):
+                    for f in files:
+                        if f.lower().endswith((".txt", ".html", ".htm")):
+                            downloaded_files.append(os.path.join(root, f))
+
+        if not downloaded_files:
+            st.warning(f"No .txt/.html filing files found under {download_root}")
             return set()
         else:
-            st.info(f"Found {len(downloaded_files)} filing files.")
-            st.write("Files:", downloaded_files)
+            st.info(f"Found {len(downloaded_files)} filing files (scanned).")
+            st.write("Files:", downloaded_files[:10])
 
         filepath = downloaded_files[0]
         try:
@@ -140,9 +252,18 @@ def fetch_supply_chain(ticker, firm, email, longName):
             }}
         """
         url = "https://query.wikidata.org/sparql"
-        r = requests.get(url, params={"query": query, "format": "json"}).json()
-        results = {b["countryLabel"]["value"] for b in r["results"]["bindings"]}
-        return results
+        if requests is None:
+            st.warning("requests library not available; skipping Wikidata lookup")
+            return set()
+        try:
+            resp = requests.get(url, params={"query": query, "format": "json"}, timeout=15)
+            resp.raise_for_status()
+            data = resp.json()
+            results = {b["countryLabel"]["value"] for b in data.get("results", {}).get("bindings", []) if "countryLabel" in b}
+            return results
+        except Exception as e:
+            st.error(f"Wikidata query failed for {firm}: {e}")
+            return set()
 
     def define_supply_chain(firm, ticker):
         countries_list = set()
