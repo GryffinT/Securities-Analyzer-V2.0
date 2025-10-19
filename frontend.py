@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 from fetchSupplyChain import fetch_supply_chain
 from fetchSupplyChainNews import fetch_supply_chain_news
+from pyuncomtrade import Comtrade
 
 st.title("Securities Analyzer")
 email = st.text_input("Enter your email for supply chain logistics:")
@@ -28,9 +29,7 @@ if data:
         supply_chain_countries = None
         st.error(f"Error fetching supply chain for {ticker}: {e}")
     try:
-        articles = fetch_supply_chain_news(data['symbol'], data['displayName'], supply_chain_countries)
-    except Exception as e:
-        st.error(f"Error fetching articles for {ticker}: {e}")
+
 
 if ticker:
     st.html(
@@ -39,7 +38,6 @@ if ticker:
             <h1>{ticker.upper()}</h1>
             <p><span style="background-color: #3779EC;color: #4EA9F3; padding: 5px; border-radius: 5px;">{competitive_advantage['external_beta']}</span></p>
             <h1>{supply_chain_countries}</h1>
-            <h1>{articles}</h1>
         </div>
         """
     )
