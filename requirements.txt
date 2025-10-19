@@ -6,4 +6,3 @@ scikit-learn
 world_bank_data
 sec_edgar_downloader
 pycountry
-pyuncomtrade==1.2.0

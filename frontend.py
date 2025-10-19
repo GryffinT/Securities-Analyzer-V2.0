@@ -5,7 +5,6 @@ import time
 import pandas as pd
 import numpy as np
 from fetchSupplyChain import fetch_supply_chain
-from pyuncomtrade import Comtrade
 
 st.title("Securities Analyzer")
 email = st.text_input("Enter your email for supply chain logistics:")
