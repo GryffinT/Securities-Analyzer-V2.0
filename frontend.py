@@ -28,7 +28,6 @@ if data:
     except Exception as e:
         supply_chain_countries = None
         st.error(f"Error fetching supply chain for {ticker}: {e}")
-    try:
 
 
 if ticker:
