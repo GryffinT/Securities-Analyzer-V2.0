@@ -62,11 +62,11 @@ def fetch_supply_chain(ticker, firm, email, longName):
         if not os.path.exists(filing_folder):
             st.warning(f"No 10-K folder found for {ticker}: {filing_folder}")
             return set()
-        else:
-            st.info(f"10-K folder exists: {filing_folder}")
-            st.write("Contents of 10-K folder:", os.listdir(filing_folder))
+        # else:
+            # st.info(f"10-K folder exists: {filing_folder}")
+            # st.write("Contents of 10-K folder:", os.listdir(filing_folder))
 
-        # 🔍 FIX: search recursively for all .txt and .html files
+        # FIX: search recursively for all .txt and .html files
         downloaded_files = []
         for root, _, files in os.walk(filing_folder):
             for f in files:
