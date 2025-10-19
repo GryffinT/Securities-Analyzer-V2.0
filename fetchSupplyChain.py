@@ -23,13 +23,13 @@ def fetch_supply_chain(ticker, firm, email, longName):
         if email is None:
             st.error("Email must be provided for SEC downloads.")
             return set()
-        else:
-            st.info(f"Using email: {email}")
+        # else:
+            # st.info(f"Using email: {email}")
 
         download_root = os.path.join(os.getcwd(), "downloads")
         try:
             os.makedirs(download_root, exist_ok=True)
-            st.info(f"Download root folder ensured at: {download_root}")
+            # st.info(f"Download root folder ensured at: {download_root}")
         except Exception as e:
             st.error(f"Could not create download root folder: {e}")
             return set()
@@ -38,14 +38,14 @@ def fetch_supply_chain(ticker, firm, email, longName):
             dl = Downloader(download_folder=download_root,
                             company_name=company_name,
                             email_address=email)
-            st.info("Downloader initialized successfully.")
+            # st.info("Downloader initialized successfully.")
         except Exception as e:
             st.error(f"Failed to initialize Downloader: {e}")
             return set()
 
         try:
             dl.get("10-K", ticker, limit=1)
-            st.success(f"Download attempted for {ticker}")
+            # st.success(f"Download attempted for {ticker}")
         except Exception as e:
             st.error(f"Download failed for {ticker}: {e}")
             return set()
@@ -54,9 +54,9 @@ def fetch_supply_chain(ticker, firm, email, longName):
         if not os.path.exists(ticker_folder):
             st.warning(f"Ticker folder not found: {ticker_folder}")
             return set()
-        else:
-            st.info(f"Ticker folder exists: {ticker_folder}")
-            st.write("Contents of ticker folder:", os.listdir(ticker_folder))
+        # else:
+            # st.info(f"Ticker folder exists: {ticker_folder}")
+            # st.write("Contents of ticker folder:", os.listdir(ticker_folder))
 
         filing_folder = os.path.join(ticker_folder, "10-K")
         if not os.path.exists(filing_folder):
@@ -76,9 +76,9 @@ def fetch_supply_chain(ticker, firm, email, longName):
         if not downloaded_files:
             st.warning(f"No .txt or .html files found under {filing_folder}")
             return set()
-        else:
-            st.info(f"Found {len(downloaded_files)} filing files (including subfolders).")
-            st.write("Files found:", downloaded_files)
+        #else:
+            # st.info(f"Found {len(downloaded_files)} filing files (including subfolders).")
+            # st.write("Files found:", downloaded_files)
 
         # Prefer "filing-details.html" if available
         preferred_files = [f for f in downloaded_files if "filing-details.html" in f]
@@ -87,7 +87,7 @@ def fetch_supply_chain(ticker, firm, email, longName):
         try:
             with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
                 text = f.read()
-            st.info(f"Successfully read file: {filepath}")
+            # st.info(f"Successfully read file: {filepath}")
         except Exception as e:
             st.error(f"Error reading file {filepath}: {e}")
             return set()
@@ -96,8 +96,8 @@ def fetch_supply_chain(ticker, firm, email, longName):
             countries = extract_countries(text)
             if not countries:
                 st.warning(f"No countries extracted from {filepath}")
-            else:
-                st.success(f"Countries extracted from {filepath}: {countries}")
+            #else:
+                # st.success(f"Countries extracted from {filepath}: {countries}")
             return countries
         except Exception as e:
             st.error(f"Error extracting countries from {filepath}: {e}")
