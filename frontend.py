@@ -5,7 +5,6 @@ import time
 import pandas as pd
 import numpy as np
 from fetchSupplyChain import fetch_supply_chain
-from fetchSupplyChainNews import fetch_supply_chain_news
 from pyuncomtrade import Comtrade
 
 st.title("Securities Analyzer")
