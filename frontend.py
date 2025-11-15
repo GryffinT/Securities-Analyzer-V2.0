@@ -28,7 +28,7 @@ if data:
         supply_chain_countries = None
         st.error(f"Error fetching supply chain for {ticker}: {e}")
     try:
-        calc_moving_averages(ticker)
+        MA = calc_moving_averages(ticker)
     except Exception as e:
         st.error(f"Error, moving average cannot render: {e}")
 
@@ -39,7 +39,9 @@ if ticker:
         <div style="background-color: #202231; padding: 5%; border-radius: 10px;">
             <h1>{ticker.upper()}</h1>
             <p><span style="background-color: #3779EC;color: #4EA9F3; padding: 5px; border-radius: 5px;">{competitive_advantage['external_beta']}</span></p>
-            <h1>{supply_chain_countries}</h1>
+            <p>{supply_chain_countries}</p>
+            <p><span style="background-color: #3779EC;color: #4EA9F3; padding: 5px; border-radius: 5px;">SMA: {MA[0]}, EMA: {MA[1]}</span></p>
+
         </div>
         """
     )
